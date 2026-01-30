@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SAST - Recrutement Officiel</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #02060f; --card: #08101d; --border: #15243d; --accent: #1e88e5; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
+        
+        nav { background: rgba(1, 3, 8, 0.95); padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .logo-box { display: flex; align-items: center; gap: 15px; font-weight: 900; font-size: 0.9rem; letter-spacing: 1px; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 25px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+
+        .form-container { max-width: 800px; margin: 60px auto; background: var(--card); border: 1px solid var(--border); padding: 50px; border-radius: 4px; }
+        h1 { text-align: center; font-weight: 900; letter-spacing: -1px; margin-bottom: 40px; text-transform: uppercase; }
+        
+        .form-group { margin-bottom: 25px; }
+        label { display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #5c6d8c; margin-bottom: 10px; }
+        
+        input[type="text"], input[type="number"], textarea, select { 
+            width: 100%; padding: 15px; background: #010308; border: 1px solid var(--border); color: #fff; box-sizing: border-box; border-radius: 2px;
+        }
+
+        /* Style spécifique pour la case à cocher */
+        .checkbox-group { display: flex; align-items: center; gap: 10px; background: #010308; padding: 15px; border: 1px solid var(--border); cursor: pointer; }
+        .checkbox-group input { width: 20px; height: 20px; cursor: pointer; }
+
+        button.submit-btn { 
+            width: 100%; padding: 20px; background: #fff; color: #000; border: none; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; margin-top: 20px; transition: 0.3s;
+        }
+        button.submit-btn:hover { background: var(--accent); color: #fff; }
+
+        footer { text-align: center; padding: 40px; color: #3d4f6e; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo-box">
+            <img id="navLogo" src="" style="height:40px; display:none;"> <span>SAN ANDREAS STATE TROOPER</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Accueil</a>
+            <a href="recrutement.html">Recrutement</a>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h1>Dossier d'intégration</h1>
+        
+        <form id="recruitmentForm">
+            <div class="form-group">
+                <label>Nom & Prénom </label>
+                <input type="text" id="nom" placeholder="Ex: Jackson Teller" required>
+            </div>
+
+            <div class="form-group">
+                <label>Numéro de téléphone</label>
+                <input type="text" id="tel" placeholder="555-XXXX" required>
+            </div>
+
+            <div class="form-group">
+                <label>Permis de conduire valide ?</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="permis">
+                    <span style="font-size: 0.85rem;">Oui, je possède un permis de conduire valide</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Casier Judiciaire</label>
+                <select id="casier">
+                    <option value="Vierge">Vierge</option>
+                    <option value="Existant">Déjà condamné (Existant)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Cursus & Expériences (Anciens jobs, services publics...)</label>
+                <textarea id="exp" style="height:120px;" placeholder="Détaillez votre parcours professionnel..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Lettre de motivation</label>
+                <textarea id="motiv" style="height:200px;" placeholder="Exprimez vos ambitions au sein de la SAST..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Déposer le dossier officiel</button>
+        </form>
+    </div>
+
+    <footer>
+        Developed by <b>Carlos</b> for SAST New West Server
+    </footer>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://sast-site-default-rtdb.europe-west1.firebasedatabase.app" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Gestion de l'envoi
+        document.getElementById('recruitmentForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            const data = {
+                nom: document.getElementById('nom').value,
+                tel: document.getElementById('tel').value,
+                permis: document.getElementById('permis').checked ? "OUI" : "NON",
+                casier: document.getElementById('casier').value,
+                exp: document.getElementById('exp').value,
+                motiv: document.getElementById('motiv').value,
+                date: new Date().toLocaleString()
+            };
+
+            db.ref('candidatures').push(data).then(() => {
+                alert("Votre dossier a été transmis au Command Staff.");
+                window.location.href = "index.html";
+            });
+        };
+
+        // Charger le logo dynamiquement depuis le panel admin
+        db.ref('design/logo').once('value', s => {
+            if(s.val()) {
+                document.getElementById('navLogo').src = s.val();
+                document.getElementById('navLogo').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

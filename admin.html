@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SAST - Command Staff Terminal</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
+
+    <style>
+        :root { --bg: #02060f; --sidebar: #010308; --card: #08101d; --border: #15243d; --accent: #1e88e5; }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Masqué par défaut */
+        #sidebar, #adminPanel { display: none; }
+
+        .sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); flex-direction: column; padding: 20px; box-sizing: border-box; display: none; }
+        .logo-area { font-weight: 900; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .nav-btn { background: none; border: none; color: #5c6d8c; text-align: left; padding: 12px 15px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 6px; margin-bottom: 5px; width: 100%; }
+        .nav-btn:hover, .nav-btn.active { background: #0a162b; color: #fff; }
+        .btn-home { margin-bottom: 20px; text-decoration: none; padding: 10px 15px; background: #15243d; color: #fff; border-radius: 4px; font-size: 0.75rem; font-weight: 900; text-align: center; display: block; }
+
+        .main { flex: 1; overflow-y: auto; padding: 40px; }
+        .section { display: none; max-width: 1000px; animation: fadeIn 0.2s ease; }
+        .section.active { display: block; }
+
+        .login-box { max-width: 350px; margin: 150px auto; text-align: center; background: var(--card); padding: 40px; border: 1px solid var(--border); border-radius: 4px; }
+        input { width: 100%; padding: 12px; background: #010308; border: 1px solid var(--border); color: #fff; margin-bottom: 20px; box-sizing: border-box; }
+        button.primary { background: var(--accent); color: #fff; border: none; padding: 12px 25px; font-weight: 900; text-transform: uppercase; cursor: pointer; width: 100%; border-radius: 2px; }
+        
+        .footer-credit { margin-top: auto; padding: 15px 0; border-top: 1px solid var(--border); font-size: 0.65rem; color: #3d4f6e; text-align: center; }
+        #editor-container { height: 400px; background: #fff; color: #000; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo-area">SAN ANDREAS STATE TROOPER</div>
+        <a href="index.html" class="btn-home">ACCUEIL DU SITE</a>
+        <button class="nav-btn active" onclick="showTab('tab-candidatures', this)">📥 Candidatures</button>
+        <button class="nav-btn" onclick="showTab('tab-onglets', this)">📁 Gestion Onglets</button>
+        <button class="nav-btn" onclick="showTab('tab-events', this)">📢 News & Events</button>
+        <button class="nav-btn" onclick="showTab('tab-design', this)">🖼️ Design Image</button>
+        <button onclick="logout()" style="margin-top:20px; background:none; border:none; color:#f44; cursor:pointer; font-weight:800; font-size:0.7rem;">DÉCONNEXION</button>
+
+        <div class="footer-credit">
+            Developed by Carlos<br>SAST New West Server
+            <a href="https://discord.gg/XgfvwkSZcu" target="_blank">
+                <img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" style="width:20px; margin-top:10px; opacity:0.5;">
+            </a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div id="loginBox" class="login-box">
+            <h2 style="margin-top:0; font-weight:900;">MDT ACCESS</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="pass" placeholder="Password">
+            <button class="primary" onclick="login()">Connexion</button>
+        </div>
+
+        <div id="adminPanel">
+            <div id="tab-candidatures" class="section active">
+                <h2>Candidatures</h2>
+                <div id="recruitList"></div>
+            </div>
+
+            <div id="tab-onglets" class="section">
+                <h2>Éditeur Onglets (GDoc)</h2>
+                <div style="background:var(--card); padding:20px; border: 1px solid var(--border);">
+                    <input type="text" id="pTitle" placeholder="Titre de la page">
+                    <div id="editor-container"></div>
+                    <button class="primary" onclick="savePage()" style="margin-top:20px; width:auto;">Publier</button>
+                </div>
+            </div>
+
+            <div id="tab-events" class="section">
+                <h2>News (Format Photo 1)</h2>
+                <div style="background:var(--card); padding:20px; border: 1px solid var(--border);">
+                    <input type="text" id="et" placeholder="Titre">
+                    <input type="text" id="ei" placeholder="Lien image">
+                    <textarea id="ed" style="width:100%; height:100px; background:#010308; border:1px solid var(--border); color:#fff; padding:10px;" placeholder="Description"></textarea>
+                    <button class="primary" onclick="addEvent()" style="margin-top:10px; width:auto;">Diffuser</button>
+                </div>
+            </div>
+            
+            <div id="tab-design" class="section">
+                <h2>Design</h2>
+                <div style="background:var(--card); padding:20px; border: 1px solid var(--border);">
+                    <input type="text" id="lLogo" placeholder="Lien Logo">
+                    <input type="text" id="lBg" placeholder="Lien Background">
+                    <button class="primary" onclick="saveDesign()" style="width:auto;">Appliquer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyCY-VaTDKe3lJf7pfT2polrunF6r5uEH1I", authDomain: "sast-site.firebaseapp.com", projectId: "sast-site", databaseURL: "https://sast-site-default-rtdb.europe-west1.firebasedatabase.app" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Initialisation GDoc
+        var quill = new Quill('#editor-container', { theme: 'snow', modules: { imageResize: { displaySize: true }, toolbar: [[{ 'header': [1, 2, false] }], ['bold', 'italic', 'underline'], [{ 'color': [] }], ['image', 'link']] } });
+
+        // LOGIN / LOGOUT
+        function login() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            firebase.auth().signInWithEmailAndPassword(email, pass).catch(err => alert("Erreur: " + err.message));
+        }
+
+        function logout() { firebase.auth().signOut().then(() => location.reload()); }
+
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('sidebar').style.display = 'flex';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadCandidatures();
+            } else {
+                document.getElementById('loginBox').style.display = 'block';
+                document.getElementById('sidebar').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'none';
+            }
+        });
+
+        function showTab(id, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function savePage() { db.ref('pages').push({ title: document.getElementById('pTitle').value, content: quill.root.innerHTML }).then(() => alert("Publié !")); }
+        function addEvent() { db.ref('events').push({ titre: document.getElementById('et').value, img: document.getElementById('ei').value, desc: document.getElementById('ed').value }).then(() => alert("Diffusé !")); }
+        function saveDesign() { db.ref('design').set({ logo: document.getElementById('lLogo').value, bgHome: document.getElementById('lBg').value }); }
+
+        function loadCandidatures() {
+            db.ref('candidatures').on('value', snap => {
+                const list = document.getElementById('recruitList'); list.innerHTML = "";
+                snap.forEach(c => {
+                    const d = c.val();
+                    list.innerHTML += `<div style="background:#08101d; border:1px solid #15243d; padding:20px; margin-bottom:15px;">
+                        <h3 style="margin-top:0;">${d.nom}</h3>
+                        <p style="font-size:0.8rem; color:#5c6d8c;">Tel: ${d.tel} | Permis: ${d.permis}</p>
+                        <button onclick="db.ref('candidatures/${c.key}').remove()" style="background:none; color:#f44; border:none; cursor:pointer;">Archiver</button>
+                    </div>`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>

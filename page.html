@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SAST - Database</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #050a14; color: white; font-family: 'Inter', sans-serif; margin: 0; }
+        .container { max-width: 900px; margin: 50px auto; padding: 40px; background: #0a1221; border: 1px solid #1a2a44; }
+        img { max-width: 100%; height: auto; } /* Permet le resize correct */
+        a.back { color: #5c6d8c; text-decoration: none; font-weight: 700; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back">← RETOUR ACCUEIL</a>
+        <h1 id="pTitle" style="font-size: 2.5rem; border-bottom: 2px solid #fff; padding-bottom: 10px; margin-top: 20px;">Chargement...</h1>
+        <div id="pContent" style="margin-top: 30px; line-height: 1.6;"></div>
+    </div>
+    <script>
+        const firebaseConfig = { databaseURL: "https://sast-site-default-rtdb.europe-west1.firebasedatabase.app" };
+        firebase.initializeApp(firebaseConfig);
+        const id = new URLSearchParams(window.location.search).get('id');
+        firebase.database().ref('pages/' + id).once('value', s => {
+            document.getElementById('pTitle').textContent = s.val().title;
+            document.getElementById('pContent').innerHTML = s.val().content;
+        });
+    </script>
+</body>
+</html>
