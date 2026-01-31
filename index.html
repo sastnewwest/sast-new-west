@@ -2,124 +2,276 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SAST - San Andreas State Trooper</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAST | SAN ANDREAS STATE TROOPERS</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --sast-blue: #1f6feb; --bg: #010409; --card: #0d1117; --border: #30363d; --text: #c9d1d9; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+        :root {
+            --accent: #3a86ff;
+            --surface: #111;
+            --border: rgba(255,255,255,0.1);
+        }
 
-        nav { background: #000; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--sast-blue); position: sticky; top: 0; z-index: 100; }
-        #clock { color: var(--sast-blue); font-family: monospace; font-size: 1.1rem; font-weight: bold; }
-        .nav-links a { color: #fff; text-decoration: none; font-weight: 700; margin-left: 20px; font-size: 0.75rem; text-transform: uppercase; }
+        body { 
+            background: #050505; 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+
+        /* BANDEAU DEFCON AMÉLIORÉ */
+        #defcon-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 12px;
+            font-family: 'Orbitron';
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+        }
+        
+        #defcon-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 40px; height: 75px; background: #000; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        
+        .logo-group { display: flex; align-items: center; gap: 20px; }
+        .logo-sast { height: 45px; }
+        #clock { font-family: 'Orbitron'; color: var(--accent); font-size: 0.85rem; letter-spacing: 1px; }
+        
+        nav a { 
+            text-decoration: none; color: #666; font-size: 0.75rem; 
+            font-weight: 700; margin-left: 25px; text-transform: uppercase; 
+            transition: 0.3s; 
+        }
+        nav a:hover { color: var(--accent); }
 
         .hero { 
-            height: 45vh; 
-            background-color: #000;
-            background-repeat: no-repeat !important;
-            background-position: center center !important;
-            background-size: cover !important;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-bottom: 2px solid var(--sast-blue); position: relative; 
+            height: 450px; 
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(5,5,5,1)), url('https://i.goopics.net/xvlipy.png');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .hero::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 1; }
-        .hero-content { position: relative; z-index: 2; }
-        .hero h1 { font-size: 3.5rem; font-weight: 900; margin: 0; color: #fff; }
-        .hero p { font-size: 1.2rem; letter-spacing: 8px; color: var(--sast-blue); font-weight: 700; }
-
-        /* Widget DEFCON Officiel */
-        #defcon-badge {
-            position: absolute; bottom: 20px; left: 20px;
-            padding: 10px 20px; border-radius: 4px;
-            font-weight: 900; text-transform: uppercase; font-size: 1rem;
-            display: flex; align-items: center; gap: 12px;
-            background: rgba(0,0,0,0.85); border: 2px solid transparent;
-            z-index: 10; transition: 0.5s;
+        .hero h1 { 
+            font-family: 'Orbitron'; font-size: 3.5rem; letter-spacing: 10px; 
+            margin: 0; text-shadow: 0 5px 25px rgba(0,0,0,0.9); 
         }
-        .defcon-dot { width: 18px; height: 18px; border-radius: 50%; }
-        .blink { animation: blinker 1.5s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0.3; } }
+        .hero p { color: var(--accent); font-weight: bold; letter-spacing: 4px; margin-top: 10px; text-transform: uppercase; }
 
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px; max-width: 1300px; margin: 0 auto; }
-        .content-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-        .box-header { background: #161b22; padding: 15px; text-align: center; border-bottom: 2px solid var(--sast-blue); }
-        .box-header h2 { margin: 0; font-size: 1.3rem; text-transform: uppercase; color: #fff; }
-        .scroll-area { padding: 20px; max-height: 600px; overflow-y: auto; }
-        .item-card { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
-        .event-img { width: 100%; border-radius: 4px; margin-bottom: 10px; }
+        .grid-services { 
+            display: grid; grid-template-columns: repeat(4, 1fr); 
+            max-width: 1200px; margin: -60px auto 50px; gap: 20px; padding: 0 20px;
+        }
+        .tile { 
+            background: #121214; border: 1px solid var(--border); padding: 30px 20px; 
+            border-radius: 12px; text-align: center; cursor: pointer; 
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+        .tile:hover { border-color: var(--accent); transform: translateY(-8px); background: #1a1a1d; }
+        .tile h3 { color: var(--accent); margin: 0 0 12px 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .tile p { color: #777; font-size: 0.75rem; margin: 0; line-height: 1.5; }
+
+        /* MODALE */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.96); z-index: 9999;
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #0f0f11; border: 1px solid var(--accent);
+            padding: 40px; border-radius: 15px; width: 90%; max-width: 450px;
+        }
+        .modal-content input, .modal-content textarea {
+            width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 6px;
+            background: #000; border: 1px solid #222; color: #fff; box-sizing: border-box;
+        }
+        .modal-content button {
+            width: 100%; padding: 16px; background: var(--accent); color: #fff;
+            border: none; border-radius: 6px; font-weight: bold; cursor: pointer; 
+            text-transform: uppercase; font-family: 'Orbitron';
+        }
+
+        .main-container { max-width: 1200px; margin: 40px auto 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; padding: 0 20px; }
+        .section-title { font-family: 'Orbitron'; font-size: 0.75rem; color: #444; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 30px; letter-spacing: 2px; }
+        .post { background: var(--surface); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid var(--border); }
+        .post img { width: 100%; border-radius: 8px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
-    <nav>
-        <div style="font-weight:900;">San Andreas State Trooper</div>
+
+<div id="defcon-bar">
+    <div id="defcon-dot"></div>
+    <span id="defcon-label">SYNCHRONISATION...</span>
+</div>
+
+<header>
+    <div class="logo-group">
+        <img src="https://i.goopics.net/bqgqym.png" class="logo-sast">
         <div id="clock">00:00:00</div>
-        <div class="nav-links" id="dynamic-nav">
-            <a href="index.html">Accueil</a>
-            <a href="recrutement.html">Recrutement</a>
-            <a href="admin.html">Command Staff</a>
-        </div>
+    </div>
+    <nav>
+        <a href="index.html">Accueil</a>
+        <a href="admin.html">Dashboard Admin</a>
     </nav>
+</header>
 
-    <div class="hero" id="hero-bg">
-        <div class="hero-content">
-            <h1>SAN ANDREAS STATE TROOPER</h1>
-            <p>PROTÉGER ET SERVIR</p>
-        </div>
-        <div id="defcon-badge">
-            <div id="defcon-dot" class="defcon-dot blink"></div>
-            <span id="defcon-text">Chargement...</span>
-        </div>
+<div class="hero">
+    <p>San Andreas State Troopers</p>
+    <h1>COURAGE & INTÉGRITÉ</h1>
+</div>
+
+<div class="grid-services">
+    <div class="tile" onclick="ouvrirPlainte()">
+        <h3>Dépôt de Plainte</h3>
+        <p>Signalez un délit ou déposez un rapport officiel aux autorités.</p>
     </div>
 
-    <div class="main-grid">
-        <div class="content-box"><div class="box-header"><h2>Événements</h2></div><div class="scroll-area" id="ev-list"></div></div>
-        <div class="content-box"><div class="box-header"><h2>Annonces</h2></div><div class="scroll-area" id="an-list"></div></div>
+    <div class="tile" id="tile-recrutement">
+        <h3 style="color: #fff;">RECRUTEMENT</h3>
+        <div id="status-badge" style="font-size: 0.65rem; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">...</div>
+        <p id="recrut-text">Vérification de l'état des effectifs...</p>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCY-VaTDKe3lJf7pfT2polrunF6r5uEH1I",
-            authDomain: "sast-site.firebaseapp.com",
-            projectId: "sast-site",
-            databaseURL: "https://sast-site-default-rtdb.europe-west1.firebasedatabase.app"
+    <div class="tile">
+        <h3>Législation</h3>
+        <p>Consultez le Code Pénal et les procédures d'interpellation.</p>
+    </div>
+
+    <div class="tile">
+        <h3>Services Publics</h3>
+        <p>Demande de permis de port d'arme et objets trouvés.</p>
+    </div>
+</div>
+
+<div class="main-container">
+    <div>
+        <div class="section-title">OPÉRATIONS & ÉVÉNEMENTS</div>
+        <div id="events-list"></div>
+    </div>
+    <div>
+        <div class="section-title">BULLETINS OFFICIELS</div>
+        <div id="annonces-list"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalPlainte">
+    <div class="modal-content">
+        <h2>DÉPOSER UNE PLAINTE</h2>
+        <input type="text" id="pNom" placeholder="Nom du plaignant / suspect">
+        <input type="text" id="pPhoto" placeholder="Lien de la preuve (Goopics / Imgur)">
+        <textarea id="pMessage" placeholder="Description détaillée des faits..." rows="6"></textarea>
+        <button onclick="envoyerPlainte()">ENVOYER LE RAPPORT</button>
+        <p onclick="fermerPlainte()" style="text-align:center; color:#555; cursor:pointer; margin-top:20px; font-size:0.75rem;">RETOUR</p>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCY-VaTDKe3lJf7pfT2polrunF6r5uEH1I",
+        databaseURL: "https://sast-site-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "sast-site",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('fr-FR'); }, 1000);
+
+    function ouvrirPlainte() { document.getElementById('modalPlainte').style.display = 'flex'; }
+    function fermerPlainte() { document.getElementById('modalPlainte').style.display = 'none'; }
+
+    function envoyerPlainte() {
+        const nom = document.getElementById('pNom').value;
+        const msg = document.getElementById('pMessage').value;
+        if(nom && msg) {
+            db.ref('plaintes').push({
+                nom, message: msg, date: new Date().toLocaleString('fr-FR')
+            }).then(() => { alert("Rapport envoyé."); location.reload(); });
+        }
+    }
+
+    // --- SYNC DEFCON COMPLET (5 NIVEAUX) ---
+    db.ref('etat_alerte').on('value', snap => {
+        const level = snap.val();
+        const bar = document.getElementById('defcon-bar');
+        const dot = document.getElementById('defcon-dot');
+        const label = document.getElementById('defcon-label');
+        
+        const config = {
+            1: { t: "DEFCON 1 : ALERTE MAXIMALE", b: "#b81d1d", c: "#fff", d: "#ff0000" },
+            2: { t: "DEFCON 2 : DANGER IMMINENT", b: "#d97474", c: "#000", d: "#ff0000" },
+            3: { t: "DEFCON 3 : ALERTE RENFORCÉE", b: "#e8ac84", c: "#000", d: "#bd331a" },
+            4: { t: "DEFCON 4 : VIGILANCE ACCRUE", b: "#2ecc71", c: "#000", d: "#008000" },
+            5: { t: "DEFCON 5 : CONDITION NORMALE", b: "#82d9a0", c: "#000", d: "#1b853a" }
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
 
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('fr-FR'); }, 1000);
+        const active = config[level] || config[5];
+        bar.style.background = active.b;
+        label.innerText = active.t;
+        label.style.color = active.c;
+        dot.style.background = active.d;
+        
+        if(level == 1) { dot.style.animation = "pulse 1s infinite"; } 
+        else { dot.style.animation = "none"; }
+    });
 
-        // SYNC DEFCON AVEC TES AFFICHES
-        db.ref('defcon').on('value', snap => {
-            const lvl = snap.val() || 5;
-            const dot = document.getElementById('defcon-dot');
-            const txt = document.getElementById('defcon-text');
-            const badge = document.getElementById('defcon-badge');
-            
-            const styles = {
-                5: { c: "#27ae60", b: "#82e0aa", t: "DEFCON 5" }, // Vert Clair
-                4: { c: "#2ecc71", b: "#2ecc71", t: "DEFCON 4" }, // Vert Flash
-                3: { c: "#c0392b", b: "#f5b7b1", t: "DEFCON 3" }, // Orange/Rouge terne
-                2: { c: "#e74c3c", b: "#e74c3c", t: "DEFCON 2" }, // Rouge Moyen
-                1: { c: "#ff0000", b: "#ff0000", t: "DEFCON 1" }  // Rouge Pur
-            };
+    // SYNC RECRUTEMENT
+    db.ref('recrutement').on('value', snap => {
+        const d = snap.val();
+        const badge = document.getElementById('status-badge');
+        const tile = document.getElementById('tile-recrutement');
+        if (d && d.status === "ouvert") {
+            badge.innerText = "● OUVERT"; badge.style.color = "#00ff73";
+            tile.onclick = () => { window.location.href = "recrutement.html"; };
+        } else {
+            badge.innerText = "● FERMÉ"; badge.style.color = "#ff3e3e";
+            tile.onclick = () => { alert("Fermé."); };
+        }
+    });
 
-            const s = styles[lvl];
-            dot.style.backgroundColor = s.c;
-            txt.innerText = s.t + " SUR SAN ANDREAS";
-            txt.style.color = s.c;
-            badge.style.borderColor = s.c;
-            badge.style.boxShadow = `0 0 15px ${s.c}44`;
+    // SYNC CONTENU
+    db.ref('events').on('value', snap => {
+        const div = document.getElementById('events-list'); div.innerHTML = "";
+        snap.forEach(c => {
+            const e = c.val();
+            div.innerHTML += `<div class="post">${e.img ? `<img src="${e.img}">` : ''}<b style="color:var(--accent);">${e.titre}</b><p>${e.desc}</p></div>`;
         });
+    });
 
-        db.ref('design').on('value', s => { if(s.val()?.bgHome) document.getElementById('hero-bg').style.backgroundImage = `url(${s.val().bgHome})`; });
-        db.ref('events').on('value', snap => {
-            const cont = document.getElementById('ev-list'); cont.innerHTML = "";
-            snap.forEach(c => { cont.innerHTML += `<div class="item-card">${c.val().img ? `<img src="${c.val().img}" class="event-img">` : ''}<h3>${c.val().titre}</h3><p>${c.val().desc}</p></div>`; });
+    db.ref('annonces').on('value', snap => {
+        const div = document.getElementById('annonces-list'); div.innerHTML = "";
+        snap.forEach(c => {
+            const a = c.val();
+            div.innerHTML += `<div class="post"><b>${a.titre}</b><p>${a.desc}</p></div>`;
         });
-        db.ref('annonces').on('value', snap => {
-            const cont = document.getElementById('an-list'); cont.innerHTML = "";
-            snap.forEach(c => { cont.innerHTML += `<div class="item-card"><h3>${c.val().titre}</h3><p>${c.val().desc}</p></div>`; });
-        });
-    </script>
+    });
+</script>
+
+<style>
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0px red; }
+        50% { transform: scale(1.3); opacity: 0.7; box-shadow: 0 0 15px red; }
+        100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0px red; }
+    }
+</style>
 </body>
 </html>
