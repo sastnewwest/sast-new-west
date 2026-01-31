@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SAST | DOSSIER OFFICIEL</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #d4af37; --bg: #080808; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 60px 20px; }
+        
+        .form-container { max-width: 650px; margin: 0 auto; }
+        h2 { font-family: 'Orbitron'; font-size: 1.1rem; color: var(--gold); text-align: center; letter-spacing: 5px; margin-bottom: 60px; }
+
+        .group { margin-bottom: 35px; }
+        label { display: block; font-family: 'Orbitron'; font-size: 0.6rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 12px; text-transform: uppercase; }
+        
+        input, textarea { 
+            width: 100%; padding: 15px; background: #000; border: 1px solid #1a1a1a; 
+            color: #fff; border-radius: 0; box-sizing: border-box; font-size: 0.9rem; transition: 0.3s;
+        }
+        input:focus, textarea:focus { border-color: var(--gold); outline: none; background: #0c0c0c; }
+
+        .check-box { display: flex; align-items: center; gap: 15px; background: #000; padding: 15px; border: 1px solid #1a1a1a; margin-bottom: 10px; cursor: pointer; transition: 0.3s; }
+        .check-box:hover { border-color: #333; }
+        .check-box input { accent-color: var(--gold); width: 18px; height: 18px; }
+        .check-text { font-size: 0.8rem; color: #777; font-weight: 300; }
+
+        .btn-final {
+            width: 100%; padding: 22px; background: var(--gold); color: #000; border: none;
+            font-family: 'Orbitron'; font-weight: bold; font-size: 0.85rem; letter-spacing: 3px; cursor: pointer; transition: 0.4s; margin-top: 30px;
+        }
+        .btn-final:hover { filter: brightness(1.2); }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>DOSSIER D'INTÉGRATION</h2>
+
+        <div class="group">
+            <label>Identité Complète (RP)</label>
+            <input type="text" id="cNom" placeholder="Ex: Jackson Tyler">
+        </div>
+
+        <div class="group">
+            <label>Numéro de Téléphone</label>
+            <input type="tel" id="cTel" placeholder="555-XXXX">
+        </div>
+
+        <div class="group">
+            <label>Vérification des Aptitudes</label>
+            <div class="check-box" onclick="this.querySelector('input').click()">
+                <input type="checkbox" id="cPermis">
+                <span class="check-text">Je confirme posséder un permis de conduire valide</span>
+            </div>
+            <div class="check-box" onclick="this.querySelector('input').click()">
+                <input type="checkbox" id="cCasier">
+                <span class="check-text">Je confirme avoir un casier judiciaire vierge</span>
+            </div>
+        </div>
+
+        <div class="group">
+            <label>Cursus & Expériences</label>
+            <textarea id="cExp" rows="4" placeholder="Détaillez votre parcours professionnel..."></textarea>
+        </div>
+
+        <div class="group">
+            <label>Lettre de Motivation</label>
+            <textarea id="cMotiv" rows="6" placeholder="Exprimez vos ambitions au sein du SAST..."></textarea>
+        </div>
+
+        <button class="btn-final" onclick="envoyer()">DÉPOSER LE DOSSIER OFFICIEL</button>
+        <p style="text-align:center;"><a href="recrutement.html" style="color:#333; font-size:0.7rem; text-decoration:none;">RETOUR AUX PRÉ-REQUIS</a></p>
+    </div>
+
+    <script>
+        // Ta config Firebase ici
+        const firebaseConfig = {
+            apiKey: "AIzaSyCY-VaTDKe3lJf7pfT2polrunF6r5uEH1I",
+            authDomain: "sast-site.firebaseapp.com",
+            databaseURL: "https://sast-site-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "sast-site",
+            storageBucket: "sast-site.firebasestorage.app",
+            appId: "1:953647004817:web:c5d789593c6aacd0dd1330"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function envoyer() {
+            const data = {
+                nom: document.getElementById('cNom').value,
+                tel: document.getElementById('cTel').value,
+                permis: document.getElementById('cPermis').checked ? "OUI" : "NON",
+                casier: document.getElementById('cCasier').checked ? "VIERGE" : "NON",
+                experiences: document.getElementById('cExp').value,
+                motivation: document.getElementById('cMotiv').value,
+                date: new Date().toLocaleString('fr-FR')
+            };
+
+            if(data.nom && data.motivation) {
+                db.ref('candidatures').push(data).then(() => {
+                    alert("Dossier transmis avec succès.");
+                    window.location.href = "index.html";
+                });
+            } else { alert("Veuillez remplir les champs obligatoires."); }
+        }
+    </script>
+</body>
+</html>
