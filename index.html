@@ -2,142 +2,123 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SAN ANDREAS STATE TROOPER</title>
+    <title>SAST - San Andreas State Trooper</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #02060f; --card: #08101d; --border: #15243d; --accent: #1e88e5; }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
-        
-        /* Navigation avec Logo et Nom à gauche, Heure à droite */
-        nav { 
-            background: rgba(1, 3, 8, 0.95); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; 
-            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); 
-        }
-        .nav-left { display: flex; align-items: center; gap: 15px; font-weight: 900; font-size: 0.85rem; letter-spacing: 1px; }
-        .nav-right { display: flex; align-items: center; gap: 30px; }
-        .nav-links a { color: white; text-decoration: none; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; margin-left: 20px; }
-        #real-time { font-weight: 700; font-size: 0.85rem; color: #fff; border-left: 1px solid var(--border); padding-left: 20px; }
+        :root { --sast-blue: #1f6feb; --bg: #010409; --card: #0d1117; --border: #30363d; --text: #c9d1d9; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
 
-        /* Hero Section avec Titre complet et Devise */
+        nav { background: #000; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--sast-blue); position: sticky; top: 0; z-index: 100; }
+        #clock { color: var(--sast-blue); font-family: monospace; font-size: 1.1rem; font-weight: bold; }
+        .nav-links a { color: #fff; text-decoration: none; font-weight: 700; margin-left: 20px; font-size: 0.75rem; text-transform: uppercase; }
+
         .hero { 
-            height: 65vh; background: url('https://i.imgur.com/your-bg.png') center/cover; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; 
+            height: 45vh; 
+            background-color: #000;
+            background-repeat: no-repeat !important;
+            background-position: center center !important;
+            background-size: cover !important;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-bottom: 2px solid var(--sast-blue); position: relative; 
         }
-        .hero h2 { font-size: 1.2rem; font-weight: 800; margin: 0; letter-spacing: 4px; text-transform: uppercase; color: #fff; }
-        .hero h1 { font-size: 5rem; font-weight: 900; margin: -10px 0 10px 0; letter-spacing: -2px; text-transform: uppercase; }
-        .hero p { letter-spacing: 10px; color: #5c6d8c; font-weight: 700; text-transform: uppercase; font-size: 0.9rem; }
-        
-        .content { max-width: 1150px; margin: 60px auto; padding: 0 20px; }
-        
-        /* Format News avec Calendrier sur la photo */
-        .event-card { background: var(--card); border: 1px solid var(--border); margin-bottom: 40px; display: flex; align-items: stretch; min-height: 400px; border-radius: 4px; overflow: hidden; }
-        .event-img-container { width: 40%; position: relative; border-right: 1px solid var(--border); }
-        .event-img { width: 100%; height: 100%; background-size: cover; background-position: center; }
-        
-        /* Calendrier en bas à droite de l'image */
-        .calendar-tag { 
-            position: absolute; bottom: 20px; right: 20px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-            padding: 10px 15px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); text-align: center;
+        .hero::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 1; }
+        .hero-content { position: relative; z-index: 2; }
+        .hero h1 { font-size: 3.5rem; font-weight: 900; margin: 0; color: #fff; }
+        .hero p { font-size: 1.2rem; letter-spacing: 8px; color: var(--sast-blue); font-weight: 700; }
+
+        /* Widget DEFCON Officiel */
+        #defcon-badge {
+            position: absolute; bottom: 20px; left: 20px;
+            padding: 10px 20px; border-radius: 4px;
+            font-weight: 900; text-transform: uppercase; font-size: 1rem;
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(0,0,0,0.85); border: 2px solid transparent;
+            z-index: 10; transition: 0.5s;
         }
-        .cal-day { font-size: 1.2rem; font-weight: 900; display: block; }
-        .cal-month { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; }
+        .defcon-dot { width: 18px; height: 18px; border-radius: 50%; }
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.3; } }
 
-        .event-txt { width: 60%; padding: 50px; box-sizing: border-box; }
-        .event-txt h2 { margin-top: 0; font-weight: 900; text-transform: uppercase; font-size: 1.6rem; margin-bottom: 20px; }
-        .event-txt p { color: #bbb; line-height: 1.8; font-size: 1rem; white-space: pre-wrap; }
-
-        footer { text-align: center; padding: 60px; border-top: 1px solid var(--border); color: #3d4f6e; font-size: 0.7rem; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px; max-width: 1300px; margin: 0 auto; }
+        .content-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .box-header { background: #161b22; padding: 15px; text-align: center; border-bottom: 2px solid var(--sast-blue); }
+        .box-header h2 { margin: 0; font-size: 1.3rem; text-transform: uppercase; color: #fff; }
+        .scroll-area { padding: 20px; max-height: 600px; overflow-y: auto; }
+        .item-card { background: #1c2128; border: 1px solid var(--border); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+        .event-img { width: 100%; border-radius: 4px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <nav>
-        <div class="nav-left">
-            <img id="nav-logo-img" src="" style="height:35px; display:none;">
-            <span>SAN ANDREAS STATE TROOPER</span>
-        </div>
-        <div class="nav-right">
-            <div class="nav-links" id="main-nav">
-                <a href="index.html">Accueil</a>
-                <a href="recrutement.html">Recrutement</a>
-                <a href="admin.html" style="border: 1px solid rgba(255,255,255,0.3); padding: 8px 15px;">COMMAND STAFF</a>
-            </div>
-            <div id="real-time">00:00:00</div>
+        <div style="font-weight:900;">San Andreas State Trooper</div>
+        <div id="clock">00:00:00</div>
+        <div class="nav-links" id="dynamic-nav">
+            <a href="index.html">Accueil</a>
+            <a href="recrutement.html">Recrutement</a>
+            <a href="admin.html">Command Staff</a>
         </div>
     </nav>
 
-    <div class="hero" id="heroBg">
-        <h2>San Andreas</h2>
-        <h1>STATE TROOPER</h1>
-        <p>Protéger et servir</p>
+    <div class="hero" id="hero-bg">
+        <div class="hero-content">
+            <h1>SAN ANDREAS STATE TROOPER</h1>
+            <p>PROTÉGER ET SERVIR</p>
+        </div>
+        <div id="defcon-badge">
+            <div id="defcon-dot" class="defcon-dot blink"></div>
+            <span id="defcon-text">Chargement...</span>
+        </div>
     </div>
 
-    <div class="content" id="newsSection">
-        </div>
-
-    <footer>
-        Developed by <b>Carlos</b> for SAST New West Server
-    </footer>
+    <div class="main-grid">
+        <div class="content-box"><div class="box-header"><h2>Événements</h2></div><div class="scroll-area" id="ev-list"></div></div>
+        <div class="content-box"><div class="box-header"><h2>Annonces</h2></div><div class="scroll-area" id="an-list"></div></div>
+    </div>
 
     <script>
-        const firebaseConfig = { databaseURL: "https://sast-site-default-rtdb.europe-west1.firebasedatabase.app" };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCY-VaTDKe3lJf7pfT2polrunF6r5uEH1I",
+            authDomain: "sast-site.firebaseapp.com",
+            projectId: "sast-site",
+            databaseURL: "https://sast-site-default-rtdb.europe-west1.firebasedatabase.app"
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Heure en temps réel (Blanc, en haut à droite)
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('real-time').textContent = now.toLocaleTimeString('fr-FR');
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('fr-FR'); }, 1000);
 
-        // Affichage des News avec Calendrier
+        // SYNC DEFCON AVEC TES AFFICHES
+        db.ref('defcon').on('value', snap => {
+            const lvl = snap.val() || 5;
+            const dot = document.getElementById('defcon-dot');
+            const txt = document.getElementById('defcon-text');
+            const badge = document.getElementById('defcon-badge');
+            
+            const styles = {
+                5: { c: "#27ae60", b: "#82e0aa", t: "DEFCON 5" }, // Vert Clair
+                4: { c: "#2ecc71", b: "#2ecc71", t: "DEFCON 4" }, // Vert Flash
+                3: { c: "#c0392b", b: "#f5b7b1", t: "DEFCON 3" }, // Orange/Rouge terne
+                2: { c: "#e74c3c", b: "#e74c3c", t: "DEFCON 2" }, // Rouge Moyen
+                1: { c: "#ff0000", b: "#ff0000", t: "DEFCON 1" }  // Rouge Pur
+            };
+
+            const s = styles[lvl];
+            dot.style.backgroundColor = s.c;
+            txt.innerText = s.t + " SUR SAN ANDREAS";
+            txt.style.color = s.c;
+            badge.style.borderColor = s.c;
+            badge.style.boxShadow = `0 0 15px ${s.c}44`;
+        });
+
+        db.ref('design').on('value', s => { if(s.val()?.bgHome) document.getElementById('hero-bg').style.backgroundImage = `url(${s.val().bgHome})`; });
         db.ref('events').on('value', snap => {
-            const container = document.getElementById('newsSection'); container.innerHTML = "";
-            snap.forEach(c => {
-                const d = c.val();
-                const eventDate = new Date(); // Par défaut aujourd'hui si non spécifié
-                const day = eventDate.getDate();
-                const month = eventDate.toLocaleString('fr-FR', { month: 'short' });
-
-                container.innerHTML += `
-                    <div class="event-card">
-                        <div class="event-img-container">
-                            <div class="event-img" style="background-image: url('${d.img || ''}')"></div>
-                            <div class="calendar-tag">
-                                <span class="cal-day">${day}</span>
-                                <span class="cal-month">${month}</span>
-                            </div>
-                        </div>
-                        <div class="event-txt">
-                            <h2>${d.titre}</h2>
-                            <p>${d.desc}</p>
-                        </div>
-                    </div>`;
-            });
+            const cont = document.getElementById('ev-list'); cont.innerHTML = "";
+            snap.forEach(c => { cont.innerHTML += `<div class="item-card">${c.val().img ? `<img src="${c.val().img}" class="event-img">` : ''}<h3>${c.val().titre}</h3><p>${c.val().desc}</p></div>`; });
         });
-
-        // Navigation dynamique
-        db.ref('pages').on('value', snap => {
-            const nav = document.getElementById('main-nav');
-            snap.forEach(c => {
-                const link = document.createElement('a');
-                link.href = `page.html?id=${c.key}`;
-                link.textContent = c.val().title;
-                nav.insertBefore(link, nav.lastElementChild);
-            });
-        });
-
-        // Design (Logo et Background)
-        db.ref('design').on('value', s => {
-            const d = s.val();
-            if(d.bgHome) document.getElementById('heroBg').style.backgroundImage = `url(${d.bgHome})`;
-            if(d.logo) {
-                document.getElementById('nav-logo-img').src = d.logo;
-                document.getElementById('nav-logo-img').style.display = 'block';
-            }
+        db.ref('annonces').on('value', snap => {
+            const cont = document.getElementById('an-list'); cont.innerHTML = "";
+            snap.forEach(c => { cont.innerHTML += `<div class="item-card"><h3>${c.val().titre}</h3><p>${c.val().desc}</p></div>`; });
         });
     </script>
 </body>
