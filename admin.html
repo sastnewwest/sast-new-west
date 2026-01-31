@@ -10,65 +10,119 @@
         :root { --gold: #d4af37; --bg: #050505; --card: #0a0a0c; --border: rgba(212,175,55,0.2); }
         body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* LOGIN */
-        #login-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .login-box { text-align: center; width: 350px; }
-        .login-box h2 { font-family: 'Orbitron'; color: var(--gold); letter-spacing: 5px; margin-bottom: 30px; }
-        .login-box input { width: 100%; padding: 15px; background: transparent; border: 1px solid #222; color: white; text-align: center; margin-bottom: 15px; box-sizing: border-box; }
-        .login-box button { width: 100%; padding: 15px; background: var(--gold); border: none; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; }
+        /* --- ANIMATION BACKGROUND FUTURISTE --- */
+        #login-overlay { 
+            position: fixed; inset: 0; background: #000; z-index: 9999; 
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            overflow: hidden;
+        }
 
-        /* SIDEBAR */
-        .sidebar { width: 280px; background: #000; border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; gap: 8px; }
-        .nav-btn { padding: 15px; border: 1px solid transparent; background: transparent; color: #555; text-align: left; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.3s; }
+        /* Logos qui défilent en arrière-plan */
+        .bg-scroll {
+            position: absolute; inset: 0; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+            z-index: -1;
+        }
+        
+        .logo-cloud {
+            position: absolute; width: 200%; height: 200%;
+            background-image: url('https://i.goopics.net/bqgqym.png'); /* Ton logo SAST */
+            background-size: 150px;
+            opacity: 0.05;
+            animation: scrollLogos 60s linear infinite;
+        }
+
+        @keyframes scrollLogos {
+            from { transform: translate(0, 0) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(5deg); }
+        }
+
+        /* Ligne laser qui scanne */
+        .scanner-line {
+            position: absolute; width: 100%; height: 2px;
+            background: var(--gold);
+            box-shadow: 0 0 15px var(--gold);
+            top: 0; left: 0; opacity: 0.5;
+            animation: scan 4s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; } 100% { top: 100%; }
+        }
+
+        /* LOGIN BOX */
+        .login-box { text-align: center; width: 380px; position: relative; z-index: 10; padding: 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--border); backdrop-filter: blur(5px); }
+        .login-box img { height: 100px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(212,175,55,0.3)); }
+        .login-box h2 { font-family: 'Orbitron'; color: var(--gold); letter-spacing: 5px; margin-bottom: 30px; font-size: 1.2rem; }
+        .login-box input { 
+            width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid #333; 
+            color: white; text-align: center; margin-bottom: 15px; box-sizing: border-box; font-family: 'Inter'; outline: none; transition: 0.3s;
+        }
+        .login-box input:focus { border-color: var(--gold); background: rgba(212,175,55,0.05); }
+        .login-box button { 
+            width: 100%; padding: 15px; background: var(--gold); border: none; 
+            font-family: 'Orbitron'; font-weight: bold; cursor: pointer; letter-spacing: 2px; color: black; transition: 0.3s;
+        }
+        .login-box button:hover { background: white; transform: scale(1.02); }
+
+        /* --- INTERFACE DASHBOARD --- */
+        .sidebar { width: 280px; background: #000; border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; }
+        .nav-btn { padding: 15px; border: 1px solid transparent; background: transparent; color: #555; text-align: left; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.3s; margin-bottom: 5px; }
         .nav-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.05); }
+        
+        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 20px; border-top: 1px solid #111; }
+        .btn-link { text-decoration: none; color: #666; font-family: 'Orbitron'; font-size: 0.6rem; text-align: center; padding: 10px; border: 1px solid #222; transition: 0.3s; }
+        .btn-link:hover { border-color: var(--gold); color: var(--gold); }
 
-        /* MAIN */
-        .main-view { flex: 1; padding: 40px; overflow-y: auto; background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url('https://i.goopics.net/xvlipy.png'); background-size: cover; }
+        .main-view { flex: 1; padding: 40px; overflow-y: auto; background: linear-gradient(rgba(0,0,0,0.92), rgba(0,0,0,0.92)), url('https://i.goopics.net/xvlipy.png'); background-size: cover; }
         .section { display: none; }
         .section.active { display: block; }
 
-        /* CARDS & INPUTS */
-        .admin-card { background: var(--card); border: 1px solid var(--border); padding: 30px; position: relative; margin-bottom: 40px; }
+        .admin-card { background: var(--card); border: 1px solid var(--border); padding: 30px; position: relative; margin-bottom: 30px; }
         .admin-card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--gold); }
         h2 { font-family: 'Orbitron'; font-size: 0.9rem; color: var(--gold); margin-bottom: 25px; text-transform: uppercase; }
-        input, textarea, select { width: 100%; padding: 12px; background: #000; border: 1px solid #222; color: white; margin-bottom: 15px; box-sizing: border-box; font-family: 'Inter'; }
+        input, textarea, select { width: 100%; padding: 12px; background: #000; border: 1px solid #222; color: white; margin-bottom: 15px; box-sizing: border-box; }
         .save-btn { background: var(--gold); color: black; border: none; padding: 12px 25px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; }
 
-        /* GESTION DES LISTES */
-        .list-container { margin-top: 20px; }
-        .item-row { background: #000; border: 1px solid #222; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--gold); }
-        .item-info b { color: var(--gold); font-family: 'Orbitron'; font-size: 0.8rem; }
-        .item-info p { margin: 5px 0 0; font-size: 0.75rem; color: #888; }
-        .del-btn { color: #ff4d4d; cursor: pointer; font-family: 'Orbitron'; font-size: 0.6rem; border: 1px solid #ff4d4d; padding: 5px 10px; transition: 0.3s; }
+        /* LISTES */
+        .item-row { background: rgba(0,0,0,0.5); border: 1px solid #222; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--gold); }
+        .del-btn { color: #ff4d4d; border: 1px solid #ff4d4d; padding: 5px 12px; cursor: pointer; font-size: 0.65rem; font-family: 'Orbitron'; transition: 0.3s; }
         .del-btn:hover { background: #ff4d4d; color: white; }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
+    <div class="logo-cloud"></div>
+    <div class="scanner-line"></div>
     <div class="login-box">
-        <img src="https://i.goopics.net/bqgqym.png" height="80" style="margin-bottom:20px;">
-        <h2>ACCÈS RESTREINT</h2>
-        <input type="text" id="login-user" placeholder="UTILISATEUR">
-        <input type="password" id="login-pass" placeholder="MOT DE PASSE">
+        <img src="https://i.goopics.net/bqgqym.png"> <h2>UNITÉ SAST</h2>
+        <input type="text" id="login-user" placeholder="NOM D'UTILISATEUR">
+        <input type="password" id="login-pass" placeholder="CODE D'ACCÈS">
         <button onclick="attemptLogin()">IDENTIFICATION</button>
+        <div id="login-status" style="margin-top:15px; color:#555; font-size:0.6rem; font-family:'Orbitron';">EN ATTENTE DE SCAN...</div>
     </div>
 </div>
 
 <div class="sidebar">
-    <div style="text-align:center; margin-bottom:40px;"><img id="side-logo" src="https://i.goopics.net/bqgqym.png" height="50"></div>
+    <div style="text-align:center; margin-bottom:40px;"><img id="side-logo" src="https://i.goopics.net/bqgqym.png" height="55"></div>
     <button class="nav-btn active" onclick="showTab('tab-defcon', this)">🚨 DEFCON</button>
     <button class="nav-btn" onclick="showTab('tab-events', this)">📅 ÉVÉNEMENTS</button>
     <button class="nav-btn" onclick="showTab('tab-annonces', this)">📢 ANNONCES</button>
     <button class="nav-btn" onclick="showTab('tab-recrut', this)">📂 RECRUTEMENTS</button>
-    <button class="nav-btn" onclick="showTab('tab-staff', this)">👤 STAFF</button>
+    <button class="nav-btn" onclick="showTab('tab-staff', this)">👤 GESTION STAFF</button>
     <button class="nav-btn" onclick="showTab('tab-config', this)">⚙️ CONFIG</button>
+
+    <div class="sidebar-footer">
+        <a href="index.html" class="btn-link">RETOUR AU SITE</a>
+        <a href="#" class="btn-link" onclick="logout()" style="color: #ff4d4d; border-color: #400;">DÉCONNEXION</a>
+    </div>
 </div>
 
 <div class="main-view">
     <div id="tab-defcon" class="section active">
         <div class="admin-card">
-            <h2>NIVEAU D'ALERTE ACTUEL</h2>
+            <h2>NIVEAU D'ALERTE ÉTAT</h2>
             <select id="defcon-val" onchange="db.ref('etat_alerte').set(parseInt(this.value))">
                 <option value="1">DEFCON 1 (ALERTE MAXIMALE)</option>
                 <option value="2">DEFCON 2</option>
@@ -81,50 +135,41 @@
 
     <div id="tab-events" class="section">
         <div class="admin-card">
-            <h2>NOUVEL ÉVÉNEMENT</h2>
-            <input type="text" id="ev-titre" placeholder="Titre de l'événement">
-            <input type="text" id="ev-date" placeholder="Date (ex: 31 JANVIER)">
+            <h2>PUBLIER OPÉRATION</h2>
+            <input type="text" id="ev-titre" placeholder="Titre">
+            <input type="text" id="ev-date" placeholder="Date (ex: 31 JAN)">
             <input type="text" id="ev-img" placeholder="Lien image Goopics">
-            <textarea id="ev-desc" placeholder="Détails..." rows="3"></textarea>
-            <button class="save-btn" onclick="addEvent()">PUBLIER L'EVENT</button>
+            <textarea id="ev-desc" rows="3" placeholder="Description..."></textarea>
+            <button class="save-btn" onclick="addEvent()">LANCER L'ÉVÉNEMENT</button>
         </div>
-        <h2>LISTE DES ÉVÉNEMENTS EN LIGNE</h2>
-        <div id="list-events-admin" class="list-container"></div>
+        <div id="list-events-admin"></div>
     </div>
 
     <div id="tab-annonces" class="section">
         <div class="admin-card">
-            <h2>NOUVEAU BULLETIN</h2>
-            <input type="text" id="an-titre" placeholder="Titre du bulletin">
-            <textarea id="an-desc" placeholder="Texte de l'annonce..." rows="4"></textarea>
+            <h2>BULLETIN OFFICIEL</h2>
+            <input type="text" id="an-titre" placeholder="Titre de l'annonce">
+            <textarea id="an-desc" rows="4" placeholder="Message..."></textarea>
             <button class="save-btn" onclick="addAnnonce()">DIFFUSER</button>
         </div>
-        <h2>ARCHIVES DES ANNONCES</h2>
-        <div id="list-annonces-admin" class="list-container"></div>
-    </div>
-
-    <div id="tab-recrut" class="section">
-        <div class="admin-card">
-            <h2>CANDIDATURES À TRAITER</h2>
-            <div id="list-cand"></div>
-        </div>
+        <div id="list-annonces-admin"></div>
     </div>
 
     <div id="tab-staff" class="section">
         <div class="admin-card">
-            <h2>CRÉER ACCÈS</h2>
+            <h2>CRÉER COMPTE ACCÈS</h2>
             <input type="text" id="new-user" placeholder="Nom">
-            <input type="text" id="new-pass" placeholder="Mdp">
-            <button class="save-btn" onclick="createAccount()">CRÉER</button>
+            <input type="text" id="new-pass" placeholder="Mot de passe">
+            <button class="save-btn" onclick="createAccount()">ENREGISTRER</button>
         </div>
         <div id="staff-list"></div>
     </div>
 
     <div id="tab-config" class="section">
         <div class="admin-card">
-            <h2>IMAGES DU SITE</h2>
-            <label>Logo Unité</label><input type="text" id="conf-logo">
-            <label>Image de fond</label><input type="text" id="conf-bg">
+            <h2>DESIGN GLOBAL</h2>
+            <label>Logo (URL)</label><input type="text" id="conf-logo">
+            <label>Background (URL)</label><input type="text" id="conf-bg">
             <button class="save-btn" onclick="updateConfig()">APPLIQUER</button>
         </div>
     </div>
@@ -139,58 +184,44 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // LOGIN
+    // --- LOGIQUE SESSION & LOGIN ---
+    window.onload = function() {
+        if(localStorage.getItem('sast_logged') === 'true') {
+            document.getElementById('login-overlay').style.display = 'none';
+        }
+    };
+
     function attemptLogin() {
         const u = document.getElementById('login-user').value;
         const p = document.getElementById('login-pass').value;
-        db.ref('staff').once('value', s => {
-            let ok = false;
-            s.forEach(c => { if(c.val().user === u && c.val().pass === p) ok = true; });
-            if(ok || (u === "ROOT" && p === "SAST2026")) document.getElementById('login-overlay').style.display='none';
-            else alert("REFUSÉ");
+        const status = document.getElementById('login-status');
+        
+        status.innerText = "SCAN EN COURS...";
+        status.style.color = "var(--gold)";
+
+        db.ref('staff').once('value', snap => {
+            let found = false;
+            snap.forEach(c => { if(c.val().user === u && c.val().pass === p) found = true; });
+            
+            setTimeout(() => {
+                if(found || (u === "ROOT" && p === "SAST2026")) {
+                    localStorage.setItem('sast_logged', 'true');
+                    document.getElementById('login-overlay').style.opacity = '0';
+                    setTimeout(() => document.getElementById('login-overlay').style.display = 'none', 500);
+                } else {
+                    status.innerText = "ACCÈS REFUSÉ - IDENTITÉ INCONNUE";
+                    status.style.color = "#ff4d4d";
+                }
+            }, 1000);
         });
     }
 
-    // ACTIONS ÉVÉNEMENTS
-    function addEvent() {
-        const data = {
-            titre: document.getElementById('ev-titre').value,
-            date: document.getElementById('ev-date').value,
-            img: document.getElementById('ev-img').value,
-            desc: document.getElementById('ev-desc').value
-        };
-        if(data.titre) db.ref('events').push(data).then(() => { alert("Publié"); document.querySelectorAll('#tab-events input, #tab-events textarea').forEach(i=>i.value=""); });
+    function logout() {
+        localStorage.removeItem('sast_logged');
+        location.reload();
     }
 
-    db.ref('events').on('value', snap => {
-        const div = document.getElementById('list-events-admin'); div.innerHTML = "";
-        snap.forEach(child => {
-            const ev = child.val();
-            div.innerHTML += `<div class="item-row">
-                <div class="item-info"><b>[${ev.date}] ${ev.titre}</b><p>${ev.desc.substring(0,50)}...</p></div>
-                <div class="del-btn" onclick="db.ref('events/${child.key}').remove()">SUPPRIMER</div>
-            </div>`;
-        });
-    });
-
-    // ACTIONS ANNONCES
-    function addAnnonce() {
-        const t = document.getElementById('an-titre').value;
-        const d = document.getElementById('an-desc').value;
-        if(t) db.ref('annonces').push({ titre: t, desc: d }).then(() => { alert("Diffusé"); document.getElementById('an-titre').value=""; document.getElementById('an-desc').value=""; });
-    }
-
-    db.ref('annonces').on('value', snap => {
-        const div = document.getElementById('list-annonces-admin'); div.innerHTML = "";
-        snap.forEach(child => {
-            div.innerHTML += `<div class="item-row">
-                <div class="item-info"><b>${child.val().titre}</b></div>
-                <div class="del-btn" onclick="db.ref('annonces/${child.key}').remove()">SUPPRIMER</div>
-            </div>`;
-        });
-    });
-
-    // NAVIGATION & STAFF & CONFIG
+    // --- FONCTIONS DASHBOARD ---
     function showTab(id, btn) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -198,25 +229,42 @@
         btn.classList.add('active');
     }
 
+    function addEvent() {
+        const d = { titre: document.getElementById('ev-titre').value, date: document.getElementById('ev-date').value, img: document.getElementById('ev-img').value, desc: document.getElementById('ev-desc').value };
+        if(d.titre) db.ref('events').push(d).then(() => alert("C'est en ligne !"));
+    }
+
+    function addAnnonce() {
+        const t = document.getElementById('an-titre').value;
+        const d = document.getElementById('an-desc').value;
+        if(t) db.ref('annonces').push({ titre: t, desc: d });
+    }
+
     function createAccount() {
         db.ref('staff').push({ user: document.getElementById('new-user').value, pass: document.getElementById('new-pass').value });
-        alert("Compte crée");
+        alert("Nouveau membre autorisé.");
     }
 
     function updateConfig() {
         db.ref('config/logo').set(document.getElementById('conf-logo').value);
         db.ref('config/bg').set(document.getElementById('conf-bg').value);
-        alert("Config OK");
     }
 
-    // LISTE STAFF
-    db.ref('staff').on('value', snap => {
-        const d = document.getElementById('staff-list'); d.innerHTML = "<h2>STAFF ACTIF</h2>";
-        snap.forEach(c => d.innerHTML += `<div class="item-row"><span>${c.val().user}</span><div class="del-btn" onclick="db.ref('staff/${c.key}').remove()">VIRER</div></div>`);
+    // --- SYNCHRO LISTES ---
+    db.ref('events').on('value', snap => {
+        const div = document.getElementById('list-events-admin'); div.innerHTML = "";
+        snap.forEach(c => div.innerHTML += `<div class="item-row"><b>[${c.val().date}] ${c.val().titre}</b><div class="del-btn" onclick="db.ref('events/${c.key}').remove()">SUPPRIMER</div></div>`);
     });
 
-    // SYNC LOGO SIDEBAR
-    db.ref('config/logo').on('value', s => { if(s.val()) document.getElementById('side-logo').src = s.val(); });
+    db.ref('annonces').on('value', snap => {
+        const div = document.getElementById('list-annonces-admin'); div.innerHTML = "";
+        snap.forEach(c => div.innerHTML += `<div class="item-row"><b>${c.val().titre}</b><div class="del-btn" onclick="db.ref('annonces/${c.key}').remove()">SUPPRIMER</div></div>`);
+    });
+
+    db.ref('staff').on('value', snap => {
+        const div = document.getElementById('staff-list'); div.innerHTML = "<h2>STAFF ACTIF</h2>";
+        snap.forEach(c => div.innerHTML += `<div class="item-row"><span>${c.val().user}</span><div class="del-btn" onclick="db.ref('staff/${c.key}').remove()">VIRER</div></div>`);
+    });
 </script>
 </body>
 </html>
